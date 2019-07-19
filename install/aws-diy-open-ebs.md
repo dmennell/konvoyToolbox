@@ -14,7 +14,7 @@ cd konvoy_v0.4.0
 ```
 eval $(maws login XXX_Mesosphere-PowerUser)
 ./konvoy init --provisioner=aws --cluster-name="XXX-Konvoy-OpenEBS"
-``
+```
 
 ### c. Modify your cluster.yaml to use the OpenEBS custom AMI (us-west-2, and us-east-1 only).  
 
