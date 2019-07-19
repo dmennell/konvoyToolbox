@@ -1,0 +1,6 @@
+#!/bin/bash
+eval $(maws li "Team 03")
+cd /Users/dcmennell/clusters/konvoy/awsDemo/BLUE/konvoy_v0.3.0/
+#rm -rf cluster.yaml runs/ state/ AWS-ssh.pem AWS-ssh.pub konvoy_v0.3.0-ssh.pem konvoy_v0.3.0-ssh.pub
+./konvoy up -y
+#./konvoy apply kubeconfig --force-overwrite
