@@ -6,3 +6,7 @@ This is my personal Konvoy Toolbox of scripts, commands, and instructions to do 
 * the INSTALL directory includes install examples for different envirtonments
 
 * the SERVICES directory provides instructions to deploy different services to Konvoy
+
+* the COMMANDS directory has commands that I have found useful in my day-to-day journeys.
+
+
