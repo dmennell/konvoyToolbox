@@ -1,0 +1,174 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: jenkins-claim
+  namespace: jenkins
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: ebs-csi-driver
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkins-configuration-as-code
+  namespace: jenkins
+data:
+  configuration-as-code.yaml: |
+    jenkins:
+      agentProtocols:
+      - "JNLP4-connect"
+      - "Ping"
+      authorizationStrategy:
+        loggedInUsersCanDoAnything:
+          allowAnonymousRead: false
+      clouds:
+      - kubernetes:
+          connectTimeout: 5
+          containerCapStr: "10"
+          credentialsId: "k8s-credential"
+          jenkinsUrl: "http://jenkins-svc.jenkins:8080/jenkins"
+          maxRequestsPerHostStr: "32"
+          name: "kubernetes"
+          namespace: "jenkins"
+          readTimeout: 15
+          templates:
+          - name: "kube-slave"
+            namespace: "jenkins"
+            label: "kube-slave"
+            nodeUsageMode: EXCLUSIVE
+            containers:
+            - name: "java"
+              image: "openjdk:8-jdk-alpine"
+              alwaysPullImage: false
+              workingDir: "/home/jenkins"
+              command: "/bin/sh -c"
+              args: "cat"
+              ttyEnabled: true
+            - name: "dind"
+              image: "docker:18-dind"
+              alwaysPullImage: false
+              workingDir: "/home/jenkins"
+              ttyEnabled: true
+              privileged: true
+            idleMinutes: "5"
+            slaveConnectTimeout: 100
+      crumbIssuer:
+        standard:
+          excludeClientIPFromCrumb: true
+      remotingSecurity:
+        enabled: true
+      securityRealm:
+        local:
+          allowsSignup: false
+          enableCaptcha: false
+          users:
+          - id: "bootstrapuser"
+            password: "deleteme"
+    credentials:
+      system:
+        domainCredentials:
+        - credentials:
+          - fileSystemServiceAccountCredential:
+              id: "k8s-credential"
+              scope: GLOBAL
+    tool:
+      maven:
+        installations:
+        - name: "M3"
+          properties:
+          - installSource:
+              installers:
+              - maven:
+                  id: "3.6.1"
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: jenkins
+  namespace: jenkins
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: jenkins-app
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: jenkins
+          imagePullPolicy: IfNotPresent
+          image: cmays/jenkins-service:latest
+          env:
+#            - name: JENKINS_URL
+#              value: https://a0693a3ec6a9f11e9a8150ac98a2895f-1084239924.us-west-2.elb.amazonaws.com/jenkins
+            - name: JENKINS_OPTS
+              value: --prefix=/jenkins
+            - name: CASC_JENKINS_CONFIG
+              value: /var/jenkins_config/configuration-as-code.yaml
+            - name: JAVA_OPTS
+              value: -Djenkins.install.runSetupWizard=false
+          ports:
+            - containerPort: 8080
+            - containerPort: 50000
+          volumeMounts:
+            - mountPath: /var/jenkins_config
+              name: jenkins-configuration-as-code
+            - mountPath: /var/jenkins_home
+              name: jenkins-home
+#          livenessProbe:
+#            httpGet:
+#              path: /jenkins/login
+#              port: 8080
+#            initialDelaySeconds: 60
+#            timeoutSeconds: 5
+#          readinessProbe:
+#            httpGet:
+#              path: /jenkins/login
+#              port: 8080
+#            initialDelaySeconds: 60
+#            timeoutSeconds: 5
+      volumes:
+        - name: jenkins-configuration-as-code
+          configMap:
+            name: jenkins-configuration-as-code
+        - name: jenkins-home
+          persistentVolumeClaim:
+            claimName: jenkins-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins-svc
+  namespace: jenkins
+spec:
+  ports:
+    - name: http
+      port: 8080
+    - name: agent
+      port: 50000
+  selector:
+    app: jenkins-app
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: jenkins-ingress
+  namespace: jenkins
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.frontend.rule.type: PathPrefix
+spec:
+  rules:
+  - http: 
+      paths:
+      - path: /jenkins
+        backend:
+          serviceName: jenkins-svc
+          servicePort: 8080
