@@ -45,9 +45,9 @@ all:
 ```
 
 ## Set Up the Drives
-This step assumes that the 3 additional drives are un-initialized, and unformatted.  It also assumes that the drives are available at /dev/sdb, /dev/sdc, and /dev/sdd.  You will first need to ssh into each worker node
+This step assumes that the 3 additional drives are un-initialized, and unformatted.  It also assumes that the drives are available at /dev/sdb, /dev/sdc, and /dev/sdd.  For a successful deployment, each drive MUST be 55GB or greater in size as Prometheus tries to grab 50 GB of space.  You will first need to ssh into each worker node to accomplish the following.  I found iTerm's broadcast function to be very useful to accomplish this:
 
-### Create the File System on each drive
+### Create the File System on each drive (one at a time)
 ```
 sudo mkfs.ext4 /dev/sdb
 #confirm with a y
@@ -64,7 +64,7 @@ sudo mkfs.ext4 /dev/sdd
 sudo mkdir /mnt/disks
 ```
 
-### Mount Drives & Modify "fstab" (1 at a time)
+### Mount Drives & Modify "fstab" (one at a time)
 Do this fo each drive /dev/sdb, /dev/sdc, /dev/sdd
 First you will need to ssh into the nodes with the appropriate key
 ```
@@ -101,7 +101,7 @@ export SKIP_AWS=true
 ## Modify the cluster.yaml so it looks something like this
 
 The init process will create a "cluster.yaml" file in the working directory.  modify it to fit your environment.  Specific fields you will need to modify are:
-* controlPlaneEndpointOverride:
+* controlPlaneEndpointOverride (This is the load balanced address and port that the Control Plane will be exposed over.  Make sure that it does not conflict with any addresses on your LAN.)
 * podSubnet (make sure it does not overlap your existing LAN)
 * metallb addresses (this is the range of addresses metallb will hand out for services.  Make sure they do not overlap existing addresses on your LAN)
 
