@@ -1,0 +1,4 @@
+#!/bin/bash
+eval $(maws li "Team 03")
+cd /Users/dcmennell/clusters/konvoy/awsDemo/GREEN/konvoy_v0.3.0/
+./konvoy down -y
