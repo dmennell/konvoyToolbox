@@ -211,6 +211,12 @@ use the full path so that if you change directories, it will still work.
 export KUBECONFIG=/Users/dcmennell/clusters/konvoy/badger/konvoy_v0.4.0/admin.conf
 ```
 
+## Open Ops Portal in Browser
+thanks James D for putting together this cool command to automatically open the Konvoy Ops Portal (run it in the CLI)
+```
+open https://$(./konvoy get ops-portal | grep Username | awk '{print $2}'):$(./konvoy get ops-portal | grep Password | awk '{print $2}')@$(./konvoy get ops-portal | grep https | cut -f3 -d\/)
+```
+
 ## Expose Kommander
 ```
 kubectl expose deployment kommander-deployment -n=kommander --type=LoadBalancer --name=k7r-dash
