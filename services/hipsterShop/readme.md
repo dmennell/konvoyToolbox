@@ -1,4 +1,4 @@
-#Hipster Shop
+# Hipster Shop
 
 Connect to Cluster and run this from kubectl
 ```
