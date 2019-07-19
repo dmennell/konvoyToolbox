@@ -55,9 +55,9 @@ eval $(maws login XXX_Mesosphere-PowerUser)
 ```
 eval $(maws login XXX_Mesosphere-PowerUser)
 
-export CLUSTER=gpalmer_konvoy_v0.3.0-XXX     # name of your cluster, check in EC2 console
+export CLUSTER=gpalmer_konvoy_v0.4.0-XXX     # name of your cluster, check in EC2 console
 export REGION=us-west-2
-export KEY_FILE=konvoy_v0.3.0-ssh.pem  
+export KEY_FILE=konvoy_v0.4.0-ssh.pem  
 
 
 IPS=$(aws --region=$REGION ec2 describe-instances |  jq --raw-output ".Reservations[].Instances[] | select((.Tags | length) > 0) | select(.Tags[].Value | test(\"$CLUSTER-worker\")) | select(.State.Name | test(\"running\")) | [.PublicIpAddress] | join(\" \")")
