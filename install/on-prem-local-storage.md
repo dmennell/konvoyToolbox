@@ -1,6 +1,8 @@
+# Konvoy Install - OnPrem with Local Storage
+
 these instructions are what I have used to deploy Konvoy 0.4.0 on Hyper-V based VM's with local stateful storage.  3 x Master node contains 8vcpu, 16gb RAM, and 80GB root hard drive. 6 x Worker nodes have 8vcpu, 16gb RAM, 80GB root hard drive, and 180gb hdd each at /dev/sdb, /dev/sdc. and /dev/sdd.
 
-#Create Inventory.yaml That Looks Like This
+## Create inventory.yaml That Looks Like This
 Uopdate the IP Addresses, the Private Key, the Ansible User.
 ```
 control-plane:
@@ -42,10 +44,10 @@ all:
     order: sorted
 ```
 
-#Set Up the Drives
+## Set Up the Drives
 This step assumes that the 3 additional drives are un-initialized, and unformatted.  It also assumes that the drives are available at /dev/sdb, /dev/sdc, and /dev/sdd.  You will first need to ssh into each worker node
 
-##Create the File System on each drive
+### Create the File System on each drive
 ```
 sudo mkfs.ext4 /dev/sdb
 #confirm with a y
@@ -57,12 +59,12 @@ sudo mkfs.ext4 /dev/sdd
 #confirm with a y
 ```
 
-##Create the /mnt/disks directory
+### Create the /mnt/disks directory
 ```
 sudo mkdir /mnt/disks
 ```
 
-##Mount Drives & Modify "fstab" (1 at a time)
+### Mount Drives & Modify "fstab" (1 at a time)
 Do this fo each drive /dev/sdb, /dev/sdc, /dev/sdd
 First you will need to ssh into the nodes with the appropriate key
 ```
@@ -85,18 +87,18 @@ sudo mount -t ext4 /dev/sdd /mnt/disks/$DISK_UUID
 echo UUID=`sudo blkid -s UUID -o value /dev/sdd` /mnt/disks/$DISK_UUID ext4 defaults 0 2 | sudo tee -a /etc/fstab
 ```
 
-##Reboot
+### Reboot
 ```
 sudo reboot
 ```
 
-#Set Skip AWS and Initialize
+## Set Skip AWS and Initialize
 ```
 export SKIP_AWS=true
 ./konvoy init --provisioner=none [--cluster-name honey-badger]
 ```
 
-#Modify the cluster.yaml so it looks something like this
+## Modify the cluster.yaml so it looks something like this
 ```
 ---
 kind: ClusterConfiguration
@@ -183,12 +185,12 @@ spec:
   version: v0.4.0
 ```
 
-#Run Preflight
+## Run Preflight
 ```
 ./konvoy check preflight
 ```
 
-#Build the Kluster
+## Build the Kluster
 ```
 ./konvoy up
 ```
@@ -203,13 +205,13 @@ exit status 1
 ```
 If so, run `./konvoy up` again and it will cycle through the already completed steps and proceed to the addon deployment
 
-#Set KubeConfig File
+## Set KubeConfig File
 use the full path so that if you change directories, it will still work.
 ```
 export KUBECONFIG=/Users/dcmennell/clusters/konvoy/badger/konvoy_v0.4.0/admin.conf
 ```
 
-#Expose Kommander
+## Expose Kommander
 ```
 kubectl expose deployment kommander-deployment -n=kommander --type=LoadBalancer --name=k7r-dash
 ```
