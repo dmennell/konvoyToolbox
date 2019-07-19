@@ -99,6 +99,12 @@ export SKIP_AWS=true
 ```
 
 ## Modify the cluster.yaml so it looks something like this
+
+The init process will create a "cluster.yaml" file in the working directory.  modify it to fit your environment.  Specific fields you will need to modify are:
+* controlPlaneEndpointOverride:
+* podSubnet (make sure it does not overlap your existing LAN)
+* metallb addresses (this is the range of addresses metallb will hand out for services.  Make sure they do not overlap existing addresses on your LAN)
+
 ```
 ---
 kind: ClusterConfiguration
@@ -194,8 +200,7 @@ spec:
 ```
 ./konvoy up
 ```
-
-There is a good chance that it will timeout at the beginning of the addons section. with an error like this:
+Let it run.  There is a good chance that it will timeout at the beginning of the addons section. with an error like this:
 ```
 STAGE [Deploying Enabled Addons]
 
