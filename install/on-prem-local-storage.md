@@ -1,9 +1,73 @@
 # Konvoy Install - OnPrem with Local Storage
 
-these instructions are what I have used to deploy Konvoy 0.4.0 on Hyper-V based VM's with local stateful storage.  3 x Master node contains 8vcpu, 16gb RAM, and 80GB root hard drive. 6 x Worker nodes have 8vcpu, 16gb RAM, 80GB root hard drive, and 180gb hdd each at /dev/sdb, /dev/sdc. and /dev/sdd.
+these instructions are what I have used to deploy Konvoy on Hyper-V based VM's with local stateful storage.  3 x Master node contains 8vcpu, 16gb RAM, and 80GB root hard drive. 6 x Worker nodes have 8vcpu, 16gb RAM, 80GB root hard drive, and 1 - 80gb hdd each at /dev/sdb, /dev/sdc. and /dev/sdd.
 
-## Create inventory.yaml That Looks Like This
-Uopdate the IP Addresses, the Private Key, the Ansible User.
+## Get The Bits
+
+Get the bits however you get them, and unpack the initial archive.  You should have 4 files that come from it:
+* konvoy
+* konvoy_vX.Y.Z.tar
+* konvoy-preflight
+* konvoy-base-centos7_v1.0.0
+
+create a "Konvoy" directory in your Applications folder andf move the files into there.  This way, as new versions come out, you can just dump the new files into the same directory.
+
+Add that directory to your "PATH" by running the following command.  
+```
+export PATH=/Applications/konvoy:$PATH
+```
+
+You should probably add it to your bash profile as well to ensure that the directory is picked up every time you open a new Terminal session.
+
+## Prepare your Installation Environment
+
+### Set Up the Drives
+This step assumes that the 3 additional drives are un-initialized, and unformatted.  It also assumes that the drives are available at /dev/sdb, /dev/sdc, and /dev/sdd.  For a successful deployment, each drive MUST be 55GB or greater in size as Prometheus tries to grab 50 GB of space.  You will first need to ssh into each worker node to accomplish the following.  I found iTerm's broadcast function to be very useful to accomplish this:
+
+#### Create the File System on each drive (one at a time)
+```
+sudo mkfs.ext4 /dev/sdb
+#confirm with a y
+
+sudo mkfs.ext4 /dev/sdc
+#confirm with a y
+
+sudo mkfs.ext4 /dev/sdd
+#confirm with a y
+```
+
+#### Create the /mnt/disks directory
+```
+sudo mkdir /mnt/disks
+```
+
+#### Mount Drives & Modify "fstab" (one at a time).  
+Do this fo each drive /dev/sdb, /dev/sdc, /dev/sdd.  First you will need to ssh into the nodes with the appropriate key
+```
+#Mount /dev/sdb
+DISK_UUID=$(sudo blkid -s UUID -o value /dev/sdb)
+sudo mkdir /mnt/disks/$DISK_UUID
+sudo mount -t ext4 /dev/sdb /mnt/disks/$DISK_UUID
+echo UUID=`sudo blkid -s UUID -o value /dev/sdb` /mnt/disks/$DISK_UUID ext4 defaults 0 2 | sudo tee -a /etc/fstab
+
+#Mount /dev/sdc
+DISK_UUID=$(sudo blkid -s UUID -o value /dev/sdc)
+sudo mkdir /mnt/disks/$DISK_UUID
+sudo mount -t ext4 /dev/sdc /mnt/disks/$DISK_UUID
+echo UUID=`sudo blkid -s UUID -o value /dev/sdc` /mnt/disks/$DISK_UUID ext4 defaults 0 2 | sudo tee -a /etc/fstab
+
+#Mount /dev/sdd
+DISK_UUID=$(sudo blkid -s UUID -o value /dev/sdd)
+sudo mkdir /mnt/disks/$DISK_UUID
+sudo mount -t ext4 /dev/sdd /mnt/disks/$DISK_UUID
+echo UUID=`sudo blkid -s UUID -o value /dev/sdd` /mnt/disks/$DISK_UUID ext4 defaults 0 2 | sudo tee -a /etc/fstab
+```
+
+### Prepare your Working Directory
+Create a folder somewhere on your local machine and navigate to it.
+
+Create "Inventory.yaml"
+Create this file in your working directory.  It should look something like below:
 ```
 control-plane:
   hosts:
@@ -38,160 +102,26 @@ node:
 all:
   vars:
     ansible_port: 22
-    ansible_ssh_private_key_file: "dcm-konvoy-key"
-    ansible_user: "dcmennell"
+    ansible_ssh_private_key_file: "key_file_location"
+    ansible_user: "userid"
     control_plane_endpoint: ""
     order: sorted
 ```
 
-## Set Up the Drives
-This step assumes that the 3 additional drives are un-initialized, and unformatted.  It also assumes that the drives are available at /dev/sdb, /dev/sdc, and /dev/sdd.  For a successful deployment, each drive MUST be 55GB or greater in size as Prometheus tries to grab 50 GB of space.  You will first need to ssh into each worker node to accomplish the following.  I found iTerm's broadcast function to be very useful to accomplish this:
-
-### Create the File System on each drive (one at a time)
-```
-sudo mkfs.ext4 /dev/sdb
-#confirm with a y
-
-sudo mkfs.ext4 /dev/sdc
-#confirm with a y
-
-sudo mkfs.ext4 /dev/sdd
-#confirm with a y
-```
-
-### Create the /mnt/disks directory
-```
-sudo mkdir /mnt/disks
-```
-
-### Mount Drives & Modify "fstab" (one at a time)
-Do this fo each drive /dev/sdb, /dev/sdc, /dev/sdd
-First you will need to ssh into the nodes with the appropriate key
-```
-#Mount /dev/sdb
-DISK_UUID=$(sudo blkid -s UUID -o value /dev/sdb)
-sudo mkdir /mnt/disks/$DISK_UUID
-sudo mount -t ext4 /dev/sdb /mnt/disks/$DISK_UUID
-echo UUID=`sudo blkid -s UUID -o value /dev/sdb` /mnt/disks/$DISK_UUID ext4 defaults 0 2 | sudo tee -a /etc/fstab
-
-#Mount /dev/sdc
-DISK_UUID=$(sudo blkid -s UUID -o value /dev/sdc)
-sudo mkdir /mnt/disks/$DISK_UUID
-sudo mount -t ext4 /dev/sdc /mnt/disks/$DISK_UUID
-echo UUID=`sudo blkid -s UUID -o value /dev/sdc` /mnt/disks/$DISK_UUID ext4 defaults 0 2 | sudo tee -a /etc/fstab
-
-#Mount /dev/sdd
-DISK_UUID=$(sudo blkid -s UUID -o value /dev/sdd)
-sudo mkdir /mnt/disks/$DISK_UUID
-sudo mount -t ext4 /dev/sdd /mnt/disks/$DISK_UUID
-echo UUID=`sudo blkid -s UUID -o value /dev/sdd` /mnt/disks/$DISK_UUID ext4 defaults 0 2 | sudo tee -a /etc/fstab
-```
-
-### Reboot
-```
-sudo reboot
-```
-
-## Set Skip AWS and Initialize
+#### Initialize Konvoy Environment 
+(as we will be doing this on prem, we will need to "SKIP_AWS")
 ```
 export SKIP_AWS=true
 ./konvoy init --provisioner=none [--cluster-name honey-badger]
 ```
 
-## Modify the cluster.yaml so it looks something like this
-
-The init process will create a "cluster.yaml" file in the working directory.  modify it to fit your environment.  Specific fields you will need to modify are:
+#### Modify the cluster.yaml accordingly
+The init process will create a "cluster.yaml" file in the working directory.  Modify it to fit your environment.  Specific fields you will need to modify are below.  Please see the Konvoy documentation for additional configuration options.
 * controlPlaneEndpointOverride (This is the load balanced address and port that the Control Plane will be exposed over.  Make sure that it does not conflict with any addresses on your LAN.)
 * podSubnet (make sure it does not overlap your existing LAN)
 * metallb addresses (this is the range of addresses metallb will hand out for services.  Make sure they do not overlap existing addresses on your LAN)
 
-```
----
-kind: ClusterConfiguration
-apiVersion: konvoy.mesosphere.io/v1alpha1
-metadata:
-  name: konvoy_v0.4.0
-  creationTimestamp: "2019-07-17T14:16:46.2148896Z"
-spec:
-  kubernetes:
-    version: 1.15.0
-    controlPlane:
-      controlPlaneEndpointOverride: "192.168.2.180:6443"
-      keepalived:
-        enabled: true
-        interface: eth0
-    networking:
-      podSubnet: 172.16.0.0/16
-      serviceSubnet: 10.0.0.0/18
-      httpProxy: ""
-      httpsProxy: ""
-    cloudProvider:
-      provider: none
-    podSecurityPolicy:
-      enabled: false
-    preflightChecks:
-      errorsToIgnore: ""
-  containerNetworking:
-    calico:
-      version: v3.8.0
-  containerRuntime:
-    containerd:
-      version: 1.2.5
-      configData:
-        data: ""
-        replace: false
-  nodePools:
-  - name: worker
-  addons:
-    configVersion: v0.0.29
-    addonsList:
-    - name: elasticsearchexporter
-      enabled: true
-    - name: helm
-      enabled: true
-    - name: opsportal
-      enabled: true
-    - name: prometheusadapter
-      enabled: true
-    - name: velero
-      enabled: true
-    - name: minio
-      enabled: true
-    - name: dashboard
-      enabled: true
-    - name: dex
-      enabled: true
-    - name: dex-k8s-authenticator
-      enabled: true
-    - name: elasticsearch
-      enabled: true
-    - name: fluentbit
-      enabled: true
-    - name: kibana
-      enabled: true
-    - name: localvolumeprovisioner
-      enabled: true
-    - name: metallb
-      enabled: true
-      values: |-
-        configInline:
-          address-pools:
-          - name: default
-            protocol: layer2
-            addresses:
-            - 192.168.2.181-192.168.2.199
-    - name: prometheus
-      enabled: true
-    - name: traefik
-      enabled: true
-    - name: kommander
-      enabled: true
-    - name: traefik-forward-auth
-      enabled: true
-  version: v0.4.0
-```
-
-## Run Preflight
+#### Run Preflight
 ```
 ./konvoy check preflight
 ```
