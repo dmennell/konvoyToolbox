@@ -18,7 +18,7 @@ brew install kubernetes-cli
 ```
 
 ### Cluster Node Prerequisites and Preparation
-Run the following on all cluster nodes (Masters and Kubelets).  You will first need to ssh into each worker node to accomplish the following.  I found iTerm's broadcast function to be very useful to accomplish this:
+This prepares the "Cluster Nodes" for install.  Run the following on all cluster nodes (Masters and Kubelets).  You will first need to ssh into each worker node to accomplish the following.  I found iTerm's broadcast function to be very useful to accomplish this:
 
 #### Turn-Off Passwords for SUDO Commands.
 This is a convenience step that is not a requirement.  It just makes the installation easier.
