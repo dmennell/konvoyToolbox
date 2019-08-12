@@ -17,8 +17,12 @@ brew install ansible
 brew install kubernetes-cli
 ```
 
-### Cluster Node Prerequisites and Preparation
-This prepares the "Cluster Nodes" for install.  Run the following on all cluster nodes (Masters and Kubelets).  You will first need to ssh into each worker node to accomplish the following.  I found iTerm's broadcast function to be very useful to accomplish this:
+### Cluster Node (Master & Kubelet) Prerequisites and Preparation
+Cluster Node preparation is really very simple.  Beyond a "Minimal" version of the install, there are no additional packages needed.  Konvoy takes care of installing all required prerequisite software.
+
+Run the following on all cluster nodes (Masters and Kubelets).  You will first need to ssh into each worker node to accomplish the following.  I found iTerm's broadcast function to be very useful to accomplish this.
+
+DO NOT make any additional package or configuration changes.  The Konvoy installer will make all necessary changes and addithions via the Ansible installer.
 
 #### Turn-Off Passwords for SUDO Commands.
 This is a convenience step that is not a requirement.  It just makes the installation easier.
