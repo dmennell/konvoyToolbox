@@ -1,27 +1,52 @@
-# Konvoy Install - OnPrem with Local Storage
+# Konvoy Install CHEATSHEET - OnPrem with Local Storage
+these instructions are what I have used to deploy Konvoy in an on prem environment with Local storage.  It has been validated with the following environment:
+* OSX Mojave Install Node.
+* Centos 7.6 Minimal Hyper-V based VM's.  
+* 3 x Master node contains 8vcpu, 16gb RAM, and 80GB root hard drive. 
+* 6 x Worker nodes have 8vcpu, 16gb RAM, 80GB root hard drive, and 1 - 80gb hdd each at /dev/sdb, /dev/sdc. and /dev/sdd.
+* SSH key copied to each of the cluster nodes for automated install
 
-these instructions are what I have used to deploy Konvoy on Hyper-V based VM's with local stateful storage.  3 x Master node contains 8vcpu, 16gb RAM, and 80GB root hard drive. 6 x Worker nodes have 8vcpu, 16gb RAM, 80GB root hard drive, and 1 - 80gb hdd each at /dev/sdb, /dev/sdc. and /dev/sdd.
+## Prerequisites
+Install needed software and get the files into place
 
-## Get The Bits
-
-Get the bits however you get them, and unpack the initial archive.  You should have 4 files that come from it:
-* konvoy
-* konvoy_vX.Y.Z.tar
-* konvoy-preflight
-* konvoy-base-centos7_v1.0.0
-
-create a "Konvoy" directory in your Applications folder andf move the files into there.  This way, as new versions come out, you can just dump the new files into the same directory.
-
-Add that directory to your "PATH" by running the following command.  
+### Installer Node Prerequisites
+Install Ansible,Terraform, and kubectl using "Home Brew"
 ```
-export PATH=/Applications/konvoy:$PATH
+brew install terraform
+brew install ansible
+brew install kubernetes-cli
 ```
 
-You should probably add it to your bash profile as well to ensure that the directory is picked up every time you open a new Terminal session.
+### Cluster Node Prerequisites and Preparation
+Run the following on all cluster nodes (Masters and Kubelets).  You will first need to ssh into each worker node to accomplish the following.  I found iTerm's broadcast function to be very useful to accomplish this:
 
-## Prepare your Installation Environment
+#### Turn-Off Passwords for SUDO Commands.
+This is a convenience step that is not a requirement.  It just makes the installation easier.
+```
+sudo visudo
+```
+remove the comment "#" next to the line that specifies what members of "wheel should not be prompted for password then save the file. "esc", ":", "wq"
 
-### Set Up the Drives
+#### Disable SWAP and Firewalld
+Prior to installing, you will need to make sure that both firewalld and SWAP are turned of & disabled:
+```
+sudo systemctl stop firewalld && sudo systemctl disable firewalld
+sudo swapoff -a
+```
+you will also need to remove any row entries that contain the word "swap" from the "/etc/fstab" directory.
+```
+sudo vi /etc/fstab
+```
+navigate cursort to any row that contains swap and "dd" do delete that row.  Now "esc", ":", "wq" to save and exit
+
+#### Reboot cluster node
+```
+sudo reboot
+```
+
+### Drive Setup on Kubelet Nodes
+Run the following on all Kubelet nodes in your cluster.
+
 This step assumes that the 3 additional drives are un-initialized, and unformatted.  It also assumes that the drives are available at /dev/sdb, /dev/sdc, and /dev/sdd.  For a successful deployment, each drive MUST be 55GB or greater in size as Prometheus tries to grab 50 GB of space.  You will first need to ssh into each worker node to accomplish the following.  I found iTerm's broadcast function to be very useful to accomplish this:
 
 #### Create the File System on each drive (one at a time)
@@ -63,10 +88,25 @@ sudo mount -t ext4 /dev/sdd /mnt/disks/$DISK_UUID
 echo UUID=`sudo blkid -s UUID -o value /dev/sdd` /mnt/disks/$DISK_UUID ext4 defaults 0 2 | sudo tee -a /etc/fstab
 ```
 
-### Prepare your Working Directory
+### Get The Bits
+Get the bits however you get them, and unpack the initial archive.  You should have 4 files that come from it:
+* konvoy
+* konvoy_vX.Y.Z.tar
+* konvoy-preflight
+* konvoy-base-centos7_vX.Y.Z
+
+create a "Konvoy" directory in your "/Applications" folder and move the files into there.  This way, as new versions come out, you can just dump the new files into the same directory without needing to change anything else.
+
+Add that directory to your "PATH" by running the following command.  
+```
+export PATH=/Applications/konvoy:$PATH
+```
+You should probably add it to your bash profile as well to ensure that the directory is picked up every time you open a new Terminal session.
+
+## Prepare your Working Directory
 Create a folder somewhere on your local machine and navigate to it.
 
-Create "Inventory.yaml"
+### Create "Inventory.yaml"
 Create this file in your working directory.  It should look something like below:
 ```
 control-plane:
@@ -108,29 +148,33 @@ all:
     order: sorted
 ```
 
-#### Initialize Konvoy Environment 
-(as we will be doing this on prem, we will need to "SKIP_AWS")
+### Initialize Konvoy Environment 
+This will create the files needed for environment provisioning.  As we will be doing this on prem, we will need to "SKIP_AWS"
 ```
 export SKIP_AWS=true
-./konvoy init --provisioner=none [--cluster-name honey-badger]
+konvoy init --provisioner=none [--cluster-name <cluster-name>]
 ```
 
-#### Modify the cluster.yaml accordingly
+### Modify the cluster.yaml accordingly
 The init process will create a "cluster.yaml" file in the working directory.  Modify it to fit your environment.  Specific fields you will need to modify are below.  Please see the Konvoy documentation for additional configuration options.
 * controlPlaneEndpointOverride (This is the load balanced address and port that the Control Plane will be exposed over.  Make sure that it does not conflict with any addresses on your LAN.)
 * podSubnet (make sure it does not overlap your existing LAN)
-* metallb addresses (this is the range of addresses metallb will hand out for services.  Make sure they do not overlap existing addresses on your LAN)
-
-#### Run Preflight
-```
-./konvoy check preflight
-```
+* metallb addresses (this is the range of LAN addresses metallb will hand out for services.  Make sure they are not alhanded out by your DHCP Server, and that they are not already in use.
 
 ## Build the Kluster
+Now we are ready to run the preflight checks and build the cluster.
+
+### Run Preflight
 ```
-./konvoy up
+konvoy check preflight
 ```
-Let it run.  There is a good chance that it will timeout at the beginning of the addons section. with an error like this:
+Assuming everything is correct, the preflight check will exit normally.
+
+### Build the Cluster
+```
+konvoy up -y
+```
+The "-y" flag bypasses the confirmation that this will take about 15 minutes.Let it run.  Based on many contributing factors (bandwith, latency, packet-loss) between installer & servers, There is a chance that it will timeout at the beginning of the addons sectionwith an error like this:
 ```
 STAGE [Deploying Enabled Addons]
 
@@ -138,26 +182,23 @@ Error: failed to deploy the cluster: error generating workflow from Addon list: 
 ]
 exit status 1
 ```
-If so, run `./konvoy up` again and it will cycle through the already completed steps and proceed to the addon deployment
+If so, run `konvoy up` again and it will cycle through the already completed steps and proceed to the addon deployment.
+
+Assuming the install completes correctly, you will see a message that provides the URL for "Ops Landing Page" and the UserID and password needed to access it.
+```
+"https://ip-address/ops/landing"
+```
 
 ## Set KubeConfig File
 use the full path so that if you change directories, it will still work.
 ```
-export KUBECONFIG=/Users/dcmennell/clusters/konvoy/badger/konvoy_v0.4.0/admin.conf
+export KUBECONFIG=</complete/path/to/working/directory/of/install>/admin.conf
 ```
 
-## Open Ops Portal in Browser
-thanks James D for putting together this cool command to automatically open the Konvoy Ops Portal (run it in the CLI)
+### Verify "kubectl" access to cluster
+Verify that you can get to the API server via kubectl
 ```
-open https://$(./konvoy get ops-portal | grep Username | awk '{print $2}'):$(./konvoy get ops-portal | grep Password | awk '{print $2}')@$(./konvoy get ops-portal | grep https | cut -f3 -d\/)
-```
-
-## Expose Kommander
-```
-kubectl expose deployment kommander-deployment -n=kommander --type=LoadBalancer --name=k7r-dash
-```
-Find the address the service was exposed over:
-```
-kubectl get services -n=kommander
+kubectl get nodes
 ```
 
+YOU ARE DONE... HAVE FUN WITH KUBERNETES!!!
