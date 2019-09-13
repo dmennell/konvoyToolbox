@@ -91,7 +91,7 @@ kubectl apply -f pod-pv-test.yaml
 kubectl describe pod pod-pv-test
 ```
 
-Deploy Jenkins using Persistent Volumes from CSTOR
+## Deploy Jenkins using Persistent Volumes from CSTOR
 
 create a namespace for Jenkins
 ```
