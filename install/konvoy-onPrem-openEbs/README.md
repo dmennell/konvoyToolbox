@@ -8,14 +8,14 @@ These instructions are meant to be an easy to follow set of instructions for dep
 * 9 x Kubelets (8cpu, 16GBram, 30GB root-drive, 4x60GB data-drives)
 * Open-Ebs 1.2 with CSTOR storage provisioner
 
-
 ## Prerequisites
 * Konvoy Kubernetes Cluster deployed without persistant storage and services requiring persistent storage disabled (see instructions)
 * 3+ x 55GB+ drives attached to each worker node (drives should not be partitioned/formatted)
 * kubectl installed on client node and configured to access desired Kubernetes cluster
 * Helm installed and configured on client node
+* Download/Clone/Copy/Whatever these files locally to your computer.
 
-## Install, Start, Enable, Validate iSCSI Client Softweare
+## Install, Start, Enable, Validate iSCSI Client Software
 This process needs to be completed on every Kubelet (non control-plane) node as Open EBS relies on the iSCSI Initiator and tools
 ```
 sudo yum install iscsi-initiator-utils -y
@@ -34,8 +34,7 @@ systemctl status iscsid
 ```
 
 ## Deploy "OpenEBS Operator" on the Kubernetes Cluster
-
-For Default Install, use Helm
+For Default Install, use Helm.
 ```
 helm init
 helm install --namespace openebs --name openebs stable/openebs --version 1.2.0
@@ -46,14 +45,12 @@ First we need to get block devices, and then modify the yaml appropriately.
 
 **Get Block Devices**
 you will need the Block Device identifiers in th
-
 ```
 kubectl get blockdevices -n openebs
 ```
 save the output or make sure it is available to copy/paste into the 
 
 **Modify & Deploy Storage Pool Claim**
-
 replace the `blockDeviceList` entries below with the entries from the the command above. and
 deploy the YAML
 ```
