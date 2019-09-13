@@ -1,5 +1,3 @@
-Deploy Open-EBS On-Prem Local Disk
-
 ## Overview
 These instructions are meant to be an easy to follow set of instructions for deploying Open-EBS storage on D2iQ Konvoy Kubernetes.  These instructions have been validated in the following environment:
 * On-Prem Cluster
@@ -17,7 +15,6 @@ These instructions are meant to be an easy to follow set of instructions for dep
 * kubectl installed on client node and configured to access desired Kubernetes cluster
 * Helm installed and configured on client node
 
-
 ## Install, Start, Enable, Validate iSCSI Client Softweare
 This process needs to be completed on every Kubelet (non control-plane) node as Open EBS relies on the iSCSI Initiator and tools
 ```
@@ -33,7 +30,6 @@ cat /etc/iscsi/initiatorname.iscsi
 systemctl status iscsid
 ```
 
-
 ## Deploy "OpenEBS Operator" on the Kubernetes Cluster
 
 For Default Install, use Helm
@@ -41,7 +37,6 @@ For Default Install, use Helm
 helm init
 helm install --namespace openebs --name openebs stable/openebs --version 1.2.0
 ```
-
 
 ## Create Storage Pool Claim
 First we need to get block devices, and then modify the yaml appropriately.
@@ -62,13 +57,11 @@ deploy the YAML
 kubectl apply -f cstor-disk-pool.yaml
 ```
 
-
 ## Create a Default Storage Class
 review the contents of `openebs-cstor-default.yaml` and deploy the YAML
 ```
 kubectl apply -f openebs-cstor-default.yaml
 ```
-
 
 ## Deploy a Test-Pod to verify
 First we will create the needed Persistant Volume Claim, and then we will deploy the pod to consume it.
