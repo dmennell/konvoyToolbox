@@ -22,11 +22,14 @@ sudo yum install iscsi-initiator-utils -y
 sudo systemctl enable iscsid
 sudo systemctl start iscsid
 ```
-Validate iSCSI Installation
+Validate iSCSI Installation:
+
+Is Innitiator Name Configured?
 ```
-# Is Innitiator Name Configured?
 cat /etc/iscsi/initiatorname.iscsi
-# Is Service Running?
+```
+Is Service Running?
+```
 systemctl status iscsid
 ```
 
