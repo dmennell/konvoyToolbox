@@ -12,7 +12,6 @@ metadata:
     openebs.io/cas-type: cstor
     storageclass.kubernetes.io/is-default-class: 'true'
 provisioner: openebs.io/provisioner-iscsi
-[dcmennell@centos100 ~]$ cat pod-pv-test.yaml
 kind: Pod
 apiVersion: v1
 metadata:
