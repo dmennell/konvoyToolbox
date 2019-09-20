@@ -1,17 +1,3 @@
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: openebs-cstor-default
-  annotations:
-    openebs.io/cas-type: cstor
-    cas.openebs.io/config: |
-      - name: StoragePoolClaim
-        value: "cstor-disk-pool"
-      - name: ReplicaCount
-        value: "1"
-    openebs.io/cas-type: cstor
-    storageclass.kubernetes.io/is-default-class: 'true'
-provisioner: openebs.io/provisioner-iscsi
 kind: Pod
 apiVersion: v1
 metadata:
