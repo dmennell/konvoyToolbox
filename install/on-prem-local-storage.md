@@ -50,16 +50,11 @@ Run the following on all Kubelet nodes in your cluster.
 
 This step assumes that the 3 additional drives are un-initialized, and unformatted.  It also assumes that the drives are available at /dev/sdb, /dev/sdc, and /dev/sdd.  For a successful deployment, each drive MUST be 55GB or greater in size as Prometheus tries to grab 50 GB of space.  You will first need to ssh into each worker node to accomplish the following.  I found iTerm's broadcast function to be very useful to accomplish this:
 
-#### Create the File System on each drive (one at a time)
+#### Create the File System on each drive
 ```
-sudo mkfs.ext4 /dev/sdb
-#confirm with a y
-
-sudo mkfs.ext4 /dev/sdc
-#confirm with a y
-
-sudo mkfs.ext4 /dev/sdd
-#confirm with a y
+sudo mkfs.ext4 -F /dev/sdb
+sudo mkfs.ext4 -F /dev/sdc
+sudo mkfs.ext4 -F /dev/sdd
 ```
 
 #### Create the /mnt/disks directory
@@ -75,13 +70,13 @@ DISK_UUID=$(sudo blkid -s UUID -o value /dev/sdb)
 sudo mkdir /mnt/disks/$DISK_UUID
 sudo mount -t ext4 /dev/sdb /mnt/disks/$DISK_UUID
 echo UUID=`sudo blkid -s UUID -o value /dev/sdb` /mnt/disks/$DISK_UUID ext4 defaults 0 2 | sudo tee -a /etc/fstab
-
+sleep 2
 #Mount /dev/sdc
 DISK_UUID=$(sudo blkid -s UUID -o value /dev/sdc)
 sudo mkdir /mnt/disks/$DISK_UUID
 sudo mount -t ext4 /dev/sdc /mnt/disks/$DISK_UUID
 echo UUID=`sudo blkid -s UUID -o value /dev/sdc` /mnt/disks/$DISK_UUID ext4 defaults 0 2 | sudo tee -a /etc/fstab
-
+sleep 2
 #Mount /dev/sdd
 DISK_UUID=$(sudo blkid -s UUID -o value /dev/sdd)
 sudo mkdir /mnt/disks/$DISK_UUID
