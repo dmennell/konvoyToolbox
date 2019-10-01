@@ -10,12 +10,9 @@ these instructions are what I have used to deploy Konvoy in an on prem environme
 Install needed software and get the files into place
 
 ### Installer Node Prerequisites
-Install Ansible,Terraform, and kubectl using "Home Brew"
-```
-brew install terraform
-brew install ansible
-brew install kubernetes-cli
-```
+Install the following software packages from your favorite package repo:
+* Docker Desktop (18.09.2 or newer) - https://www.docker.com/products/docker-desktop
+* Kubernetes CLI (15.3 or newer) - https://kubernetes.io/docs/tasks/tools/install-kubectl/
 
 ### Cluster Node (Master & Kubelet) Prerequisites and Preparation
 Cluster Node preparation is really very simple.  Beyond a "Minimal" version of the install, there are no additional packages needed.  Konvoy takes care of installing all required prerequisite software.
@@ -41,7 +38,7 @@ you will also need to remove any row entries that contain the word "swap" from t
 ```
 sudo vi /etc/fstab
 ```
-navigate cursort to any row that contains swap and "dd" do delete that row.  Now "esc", ":", "wq" to save and exit
+navigate cursor to any row that contains swap and "dd" do delete that row.  Now "esc", ":", "wq" to save and exit
 
 #### Reboot cluster node
 ```
@@ -110,60 +107,33 @@ You should probably add it to your bash profile as well to ensure that the direc
 ## Prepare your Working Directory
 Create a folder somewhere on your local machine and navigate to it.
 
-### Create "Inventory.yaml"
-Create this file in your working directory.  It should look something like below:
-```
-control-plane:
-  hosts:
-    192.168.2.151:
-      ansible_host: 192.168.2.151
-    192.168.2.152:
-      ansible_host: 192.168.2.152
-    192.168.2.153:
-      ansible_host: 192.168.2.153
-
-node:
-  hosts:
-    192.168.2.154:
-      ansible_host: 192.168.2.154
-      node_pool: node
-    192.168.2.155:
-      ansible_host: 192.168.2.155
-      node_pool: node
-    192.168.2.156:
-      ansible_host: 192.168.2.156
-      node_pool: node
-    192.168.2.157:
-      ansible_host: 192.168.2.157
-      node_pool: node
-    192.168.2.158:
-      ansible_host: 192.168.2.158
-      node_pool: node
-    192.168.2.159:
-      ansible_host: 192.168.2.159
-      node_pool: node
-
-all:
-  vars:
-    ansible_port: 22
-    ansible_ssh_private_key_file: "key_file_location"
-    ansible_user: "userid"
-    control_plane_endpoint: ""
-    order: sorted
-```
-
 ### Initialize Konvoy Environment 
 This will create the files needed for environment provisioning.  As we will be doing this on prem, we will need to "SKIP_AWS"
 ```
 export SKIP_AWS=true
 konvoy init --provisioner=none [--cluster-name <cluster-name>]
 ```
+This will create 2 files in particular:
+* cluster.yaml
+* inventory.yaml
 
-### Modify the cluster.yaml accordingly
-The init process will create a "cluster.yaml" file in the working directory.  Modify it to fit your environment.  Specific fields you will need to modify are below.  Please see the Konvoy documentation for additional configuration options.
-* controlPlaneEndpointOverride (This is the load balanced address and port that the Control Plane will be exposed over.  Make sure that it does not conflict with any addresses on your LAN.)
-* podSubnet (make sure it does not overlap your existing LAN)
-* metallb addresses (this is the range of LAN addresses metallb will hand out for services.  Make sure they are not alhanded out by your DHCP Server, and that they are not already in use.
+### Modify Your "inventory.yaml" File
+You will need to specify the IP addresses associated with the Control Plane, the Worker Nodes, and the SSH connection information:
+* Enter the IP Addresses for your "Control Plane" Nodes
+* Enter the IP Addresses for your "Worker" nodes
+* Specify your "ansible_port" (SSH default is 22)
+* Specify the location of your SSH "Private Key"
+* specify the "ansible_user" user ID (SSH Login Information)
+
+### Modify the "cluster.yaml"
+Specific fields you will need to modify are below.  Please see the Konvoy documentation for additional configuration options.
+* controlPlaneEndpointOverride:
+  * This is the load balanced address and port that the Control Plane will be exposed over (ipAddress:6443)
+  * Make sure that it does not conflict with any addresses on your LAN.
+  * podSubnet (make sure it does not overlap your existing LAN)
+* metallb addresses:
+  * this is the range of LAN addresses metallb will hand out for services (minIpAddress-maxIpAddress) 
+  * Make sure they are not handed out by your DHCP Server, and that they are not already in use.
 
 ## Build the Kluster
 Now we are ready to run the preflight checks and build the cluster.
@@ -196,7 +166,7 @@ Assuming the install completes correctly, you will see a message that provides t
 ## Set KubeConfig File
 use the full path so that if you change directories, it will still work.
 ```
-export KUBECONFIG=</complete/path/to/working/directory/of/install>/admin.conf
+konvoy apply kubeconfig
 ```
 
 ### Verify "kubectl" access to cluster
@@ -204,5 +174,11 @@ Verify that you can get to the API server via kubectl
 ```
 kubectl get nodes
 ```
+
+If you lose your credentials, run the following command from your install node (make sure that you are in your install directory.
+```
+konvoy get ops-portal
+```
+
 
 YOU ARE DONE... HAVE FUN WITH KUBERNETES!!!
