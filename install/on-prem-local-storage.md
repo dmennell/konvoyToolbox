@@ -3,7 +3,7 @@ these instructions are what I have used to deploy Konvoy in an on prem environme
 * OSX Mojave Install Node.
 * Centos 7.6 Minimal Hyper-V based VM's.  
 * 3 x Master node contains 8vcpu, 16gb RAM, and 80GB root hard drive. 
-* 6 x Worker nodes have 8vcpu, 16gb RAM, 80GB root hard drive, and 1 - 80gb hdd each at /dev/sdb, /dev/sdc. and /dev/sdd.
+* 6 x Worker nodes have 8vcpu, 16gb RAM, 80GB root hard drive, and 3 - 80gb hdd each at /dev/sdb, /dev/sdc. and /dev/sdd.
 * SSH key copied to each of the cluster nodes for automated install
 
 ## Prerequisites
