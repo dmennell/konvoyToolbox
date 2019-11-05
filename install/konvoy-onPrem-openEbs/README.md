@@ -39,9 +39,7 @@ helm install --namespace openebs --name openebs stable/openebs --version 1.2.0
 ## Create Storage Pool Claim
 First we need to get block devices, and then modify the YAML appropriately.
 
-**Get Block Devices**
-
-Run the following command.  
+Get Block Devices by running the following command:
 ```
 kubectl get blockdevices -n openebs
 ```
@@ -84,14 +82,14 @@ Review the contents of [pod-pv-test.yaml](https://raw.githubusercontent.com/dmen
 kubectl apply -f https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/pod-pv-test.yaml
 ```
 
-**Verify Deployment**
+Verify Deployment
 ```
 kubectl describe pod pod-pv-test
 ```
 
 ## Deploy Jenkins using Persistent Volumes from CSTOR
 
-create a namespace for Jenkins
+Create a namespace for Jenkins
 ```
 kubectl create ns jenkins
 ```
