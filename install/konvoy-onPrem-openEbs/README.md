@@ -95,7 +95,8 @@ kubectl describe pod pod-pv-test
 
 ## Complete Deploying D2iQ Konvoy Addons
 
-Modify your `cluster.yaml` enabling most of the previously disabled addons.  See here for a sample [cluster.yaml-final](https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/cluster.yaml-final)
+Modify your `cluster.yaml` enabling most of the previously disabled addons.  See here for a sample:
+[cluster.yaml-final](https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/cluster.yaml-final)
 
 Deploy the Konvoy addons
 ```
