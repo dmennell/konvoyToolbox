@@ -50,11 +50,18 @@ Run the following on all Kubelet nodes in your cluster.
 
 This step assumes that the 3 additional drives are un-initialized, and unformatted.  It also assumes that the drives are available at /dev/sdb, /dev/sdc, and /dev/sdd.  For a successful deployment, each drive MUST be 55GB or greater in size as Prometheus tries to grab 50 GB of space.  You will first need to ssh into each worker node to accomplish the following.  I found iTerm's broadcast function to be very useful to accomplish this:
 
-#### Create the File System on each drive
+#### Create the File System on each drive (for CentOS)
 ```
 sudo mkfs.ext4 -F /dev/sdb
 sudo mkfs.ext4 -F /dev/sdc
 sudo mkfs.ext4 -F /dev/sdd
+```
+
+#### Create the File System on each drive (for Ubuntu - the default device names are different)
+```
+sudo mkfs.ext4 -F /dev/xvdb
+sudo mkfs.ext4 -F /dev/xvdc
+sudo mkfs.ext4 -F /dev/xvdd
 ```
 
 #### Create the /mnt/disks directory
