@@ -47,11 +47,10 @@ kubectl get blockdevices -n openebs
 ```
 save the output or make sure it is available to copy/paste into the 
 
-create a [cstor-disk-pool.yaml](https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/cstor-disk-pool.yaml) file locally on your computer based on the one [HERE]9https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/cstor-disk-pool.yaml)
+create a [cstor-disk-pool.yaml](https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/cstor-disk-pool.yaml) file locally on your computer based on the one [HERE](https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/cstor-disk-pool.yaml)
 
 **Modify & Deploy Storage Pool Claim**
-replace the `blockDeviceList` entries below with the entries from the the command above. and
-deploy the YAML
+Replace the `blockdevice` entries in yout local `cstor-disk-pool.yaml` file below with the entries from the the blockdevice list that you got froom the `kubectl get blockdevices -n openebs` command above, and deploy the YAML
 ```
 kubectl apply -f cstor-disk-pool.yaml
 ```
@@ -101,4 +100,4 @@ kubectl apply -f https://raw.githubusercontent.com/dmennell/konvoyToolbox/master
 ```
 
 Verify that everything deployed properly and that it is exposed through Traefik
-
+Once you have confirmed that everything is 
