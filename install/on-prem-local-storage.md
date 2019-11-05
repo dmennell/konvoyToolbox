@@ -69,7 +69,7 @@ sudo mkfs.ext4 -F /dev/xvdd
 sudo mkdir /mnt/disks
 ```
 
-#### Mount Drives & Modify "fstab" (one at a time).  
+#### Mount Drives & Modify "fstab" (one at a time - CentOS Version).  
 Do this fo each drive /dev/sdb, /dev/sdc, /dev/sdd.  First you will need to ssh into the nodes with the appropriate key
 ```
 #Mount /dev/sdb
@@ -89,6 +89,28 @@ DISK_UUID=$(sudo blkid -s UUID -o value /dev/sdd)
 sudo mkdir /mnt/disks/$DISK_UUID
 sudo mount -t ext4 /dev/sdd /mnt/disks/$DISK_UUID
 echo UUID=`sudo blkid -s UUID -o value /dev/sdd` /mnt/disks/$DISK_UUID ext4 defaults 0 2 | sudo tee -a /etc/fstab
+```
+
+#### Mount Drives & Modify "fstab" (one at a time - Ubuntu Version).  
+Do this fo each drive /dev/sdb, /dev/sdc, /dev/sdd.  First you will need to ssh into the nodes with the appropriate key
+```
+#Mount /dev/xvdb
+DISK_UUID=$(sudo blkid -s UUID -o value /dev/xvdb)
+sudo mkdir /mnt/disks/$DISK_UUID
+sudo mount -t ext4 /dev/xvdb /mnt/disks/$DISK_UUID
+echo UUID=`sudo blkid -s UUID -o value /dev/xvdb` /mnt/disks/$DISK_UUID ext4 defaults 0 2 | sudo tee -a /etc/fstab
+sleep 2
+#Mount /dev/xvdc
+DISK_UUID=$(sudo blkid -s UUID -o value /dev/xvdc)
+sudo mkdir /mnt/disks/$DISK_UUID
+sudo mount -t ext4 /dev/xvdc /mnt/disks/$DISK_UUID
+echo UUID=`sudo blkid -s UUID -o value /dev/xvdc` /mnt/disks/$DISK_UUID ext4 defaults 0 2 | sudo tee -a /etc/fstab
+sleep 2
+#Mount /dev/xvdd
+DISK_UUID=$(sudo blkid -s UUID -o value /dev/xvdd)
+sudo mkdir /mnt/disks/$DISK_UUID
+sudo mount -t ext4 /dev/xvdd /mnt/disks/$DISK_UUID
+echo UUID=`sudo blkid -s UUID -o value /dev/xvdd` /mnt/disks/$DISK_UUID ext4 defaults 0 2 | sudo tee -a /etc/fstab
 ```
 
 ### Get The Bits
