@@ -158,6 +158,13 @@ Specific fields you will need to modify are below.  Please see the Konvoy docume
 * metallb addresses:
   * this is the range of LAN addresses metallb will hand out for services (minIpAddress-maxIpAddress) 
   * Make sure they are not handed out by your DHCP Server, and that they are not already in use.
+* default containerd version for some reason does not work
+  * need to update the version to 1.2.6-3 such that the yaml stanza looks like below:
+  ```  
+  containerd:
+    version: 1.2.6-3
+  ```
+
 
 ## Build the Kluster
 Now we are ready to run the preflight checks and build the cluster.
