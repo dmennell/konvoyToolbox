@@ -3,13 +3,13 @@ These instructions are meant to be an easy to follow set of instructions for dep
 * On-Prem Cluster
 * Hyper-V 2016 Hypervisor VM's
 * Centos 7.6 Control Plane & Kubelet nodes
-* konvoy 1.1.5 kubernetes 1.15.3
+* konvoy 1.2.3 kubernetes 1.15.4
 * 3 x Control-Plane Nodes
-* 9 x Kubelets (8cpu, 16GBram, 30GB root-drive, 4x60GB data-drives)
-* Open-Ebs 1.2 with CSTOR storage provisioner
+* 6 x Kubelets (8cpu, 16GBram, 30GB root-drive, 4x60GB data-drives)
+* Open-Ebs 1.3 with CSTOR storage provisioner
 
 ## Prerequisites
-* Konvoy Kubernetes Cluster deployed without persistant storage and services requiring persistent storage disabled (see instructions)
+* Konvoy Kubernetes Cluster deployed without persistant storage and services requiring persistent storage disabled (see instructions).  See here for a sample cluster.yaml-modified
 * 3+ x 55GB+ drives attached to each worker node (drives should not be partitioned/formatted)
 * kubectl installed on client node and configured to access desired Kubernetes cluster
 * Helm installed and configured on client node
@@ -58,9 +58,9 @@ kubectl apply -f cstor-disk-pool.yaml
 ```
 
 ## Create a Default Storage Class
-review the contents of `openebs-cstor-default.yaml` and deploy the YAML
+review the contents of `openebs-cstor-default.yaml` and deploy the YAML [here] (https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/openebs-cstor-default.yaml)
 ```
-kubectl apply -f openebs-cstor-default.yaml
+kubectl apply -f https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/openebs-cstor-default.yaml
 ```
 
 ## Deploy a Test-Pod to verify
@@ -70,7 +70,7 @@ First we will create the needed Persistant Volume Claim, and then we will deploy
 
 review `pvc-test.yaml` and deploy the YAML
 ```
-kubectl apply -f pvc-test.yaml
+kubectl apply -f https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/pvc-test.yaml
 ```
 
 Verify Deployment
@@ -83,7 +83,7 @@ kubectl describe pvc pvc-test
 
 review `pod-pv-test.yaml` and deploy the YAML
 ```
-kubectl apply -f pod-pv-test.yaml
+kubectl apply -f https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/pod-pv-test.yaml
 ```
 
 **Verify Deployment**
@@ -99,7 +99,7 @@ kubectl create ns jenkins
 ```
 review `jenkins.yaml` and deploy the YAML
 ```
-kubectl apply -f jenkins.yaml
+kubectl apply -f https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/jenkins.yaml
 ```
 
 Verify that everything deployed properly and that it is exposed through Traefik
