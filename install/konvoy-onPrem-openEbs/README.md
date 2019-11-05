@@ -8,11 +8,13 @@ These instructions are meant to be an easy to follow set of instructions for dep
 * 6 x Kubelets (8cpu, 16GBram, 30GB root-drive, 4x60GB data-drives)
 * Open-Ebs 1.3 with CSTOR storage provisioner
 
+
 ## Prerequisites
 * Konvoy Kubernetes Cluster deployed without persistant storage and services requiring persistent storage disabled (see instructions).  See here for a sample [cluster.yaml-modified](https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/cluster.yaml-modified)
 * 3+ x 55GB+ drives attached to each worker node (drives should not be partitioned/formatted)
 * kubectl installed on client node and configured to access desired Kubernetes cluster
 * Helm installed and configured on client node
+
 
 ## Install, Start, Enable, Validate iSCSI Client Software
 This process needs to be completed on every Kubelet (non control-plane) node as Open EBS relies on the iSCSI Initiator and tools.  Run the following commands:
@@ -29,12 +31,14 @@ Verify the service is running:
 systemctl status iscsid
 ```
 
+
 ## Deploy "OpenEBS Operator" on the Kubernetes Cluster
 For Default Install, use Helm.
 ```
 helm init
 helm install --namespace openebs --name openebs stable/openebs --version 1.2.0
 ```
+
 
 ## Create Storage Pool Claim
 First we need to get block devices, and then modify the YAML appropriately.
@@ -53,6 +57,7 @@ Replace the `blockdevice` entries in yout local `cstor-disk-pool.yaml` file belo
 ```
 kubectl apply -f cstor-disk-pool.yaml
 ```
+
 
 ## Create a Default Storage Class
 Review the contents of [openebs-cstor-default.yaml](https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/openebs-cstor-default.yaml) and deploy the YAML
@@ -86,6 +91,19 @@ Verify Deployment
 ```
 kubectl describe pod pod-pv-test
 ```
+
+
+## Complete Deploying D2iQ Konvoy Addons
+
+Modify your `cluster.yaml` enabling most of the previously disabled addons.  See here for a sample [cluster.yaml-final](https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/cluster.yaml-final)
+
+Deploy the Konvoy addons
+```
+konvoy deploy addons -y
+```
+
+this will deploy the addons taking advantage Open EBS as the storage provider.  If interested, you can follow the progress of the PVC's, Pods, and Services as they are deployed and become healthy.
+
 
 ## Deploy Jenkins using Persistent Volumes from CSTOR
 
