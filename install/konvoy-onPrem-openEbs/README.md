@@ -58,7 +58,7 @@ kubectl apply -f cstor-disk-pool.yaml
 ```
 
 ## Create a Default Storage Class
-review the contents of `openebs-cstor-default.yaml` and deploy the YAML [here] (https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/openebs-cstor-default.yaml)
+review the contents of `openebs-cstor-default.yaml` and deploy the YAML [here](https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/openebs-cstor-default.yaml)
 ```
 kubectl apply -f https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/openebs-cstor-default.yaml
 ```
