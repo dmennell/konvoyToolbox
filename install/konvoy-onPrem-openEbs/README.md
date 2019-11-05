@@ -68,20 +68,19 @@ First we will create the needed Persistant Volume Claim, and then we will deploy
 
 **Create Persistent Volume Claim**
 
-review `pvc-test.yaml` and deploy the YAML
+review the contents of [pvc-test.yaml](https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/pvc-test.yaml) and deploy the YAML
 ```
 kubectl apply -f https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/pvc-test.yaml
 ```
 
 Verify Deployment
-
 ```
 kubectl describe pvc pvc-test
 ```
 
 **Deploy POD that uses PVC**
 
-review `pod-pv-test.yaml` and deploy the YAML
+Review the contents of [pod-pv-test.yaml](https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/pod-pv-test.yaml) and deploy the YAML
 ```
 kubectl apply -f https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/pod-pv-test.yaml
 ```
@@ -97,7 +96,7 @@ create a namespace for Jenkins
 ```
 kubectl create ns jenkins
 ```
-review `jenkins.yaml` and deploy the YAML
+Review the contents of (jenkins.yaml)[https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/jenkins.yaml] and deploy the YAML
 ```
 kubectl apply -f https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/jenkins.yaml
 ```
