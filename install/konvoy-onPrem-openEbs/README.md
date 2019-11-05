@@ -93,10 +93,10 @@ Create a namespace for Jenkins
 ```
 kubectl create ns jenkins
 ```
-Review the contents of (jenkins.yaml)[https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/jenkins.yaml] and deploy the YAML
+Review the contents of [jenkins.yaml](https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/jenkins.yaml) and deploy the YAML
 ```
 kubectl apply -f https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/jenkins.yaml
 ```
 
 Verify that everything deployed properly and that it is exposed through Traefik
-Once you have confirmed that everything is 
+Once you have confirmed that everything is running properly.
