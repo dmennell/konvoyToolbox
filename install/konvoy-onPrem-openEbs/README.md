@@ -24,7 +24,7 @@ Verify the name is configured:
 ```
 cat /etc/iscsi/initiatorname.iscsi
 ```
-Verify the service is running
+Verify the service is running:
 ```
 systemctl status iscsid
 ```
