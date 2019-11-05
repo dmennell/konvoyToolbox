@@ -1,11 +1,11 @@
-## Overview
+## Deploying D2iQ Konvoy On-Prem With OpenEBS Storage
 These instructions are meant to be an easy to follow set of instructions for deploying Open-EBS storage on D2iQ Konvoy Kubernetes.  These instructions have been validated in the following environment:
 * On-Prem Cluster
 * Hyper-V 2016 Hypervisor VM's
 * Centos 7.6 Control Plane & Kubelet nodes
 * konvoy 1.2.3 kubernetes 1.15.4
 * 3 x Control-Plane Nodes
-* 6 x Kubelets (8cpu, 16GBram, 30GB root-drive, 4x60GB data-drives)
+* 6 x Kubelets (8cpu, 16GBram, 30GB root-drive, 4x55GB data-drives)
 * Open-Ebs 1.3 with CSTOR storage provisioner
 
 
