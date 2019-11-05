@@ -16,19 +16,16 @@ These instructions are meant to be an easy to follow set of instructions for dep
 * Download/Clone/Copy/Whatever these files locally to your computer.
 
 ## Install, Start, Enable, Validate iSCSI Client Software
-This process needs to be completed on every Kubelet (non control-plane) node as Open EBS relies on the iSCSI Initiator and tools
+This process needs to be completed on every Kubelet (non control-plane) node as Open EBS relies on the iSCSI Initiator and tools.  Run the following commands:
 ```
 sudo yum install iscsi-initiator-utils -y
-sudo systemctl enable iscsid
-sudo systemctl start iscsid
+sudo systemctl start iscsid && sudo systemctl enable iscsid
 ```
-Validate iSCSI Installation:
-
-Is Innitiator Name Configured?
+Verify the name is configured:
 ```
 cat /etc/iscsi/initiatorname.iscsi
 ```
-Is Service Running?
+Verify the service is running
 ```
 systemctl status iscsid
 ```
@@ -41,14 +38,16 @@ helm install --namespace openebs --name openebs stable/openebs --version 1.2.0
 ```
 
 ## Create Storage Pool Claim
-First we need to get block devices, and then modify the yaml appropriately.
+First we need to get block devices, and then modify the YAML appropriately.
 
 **Get Block Devices**
-you will need the Block Device identifiers in th
+Run the following command.  You will need the Block Device identifiers in the following step.
 ```
 kubectl get blockdevices -n openebs
 ```
 save the output or make sure it is available to copy/paste into the 
+
+create a [cstor-disk-pool.yaml](https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/cstor-disk-pool.yaml) file locally on your computer based on the one [HERE]9https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/cstor-disk-pool.yaml)
 
 **Modify & Deploy Storage Pool Claim**
 replace the `blockDeviceList` entries below with the entries from the the command above. and
