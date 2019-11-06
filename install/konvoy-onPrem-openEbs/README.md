@@ -87,7 +87,7 @@ Review the contents of [pod-pv-test.yaml](https://raw.githubusercontent.com/dmen
 kubectl apply -f https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/pod-pv-test.yaml
 ```
 
-Verify Deployment
+**Verify Deployment**
 ```
 kubectl describe pod pod-pv-test
 ```
@@ -98,12 +98,12 @@ kubectl describe pod pod-pv-test
 Modify your `cluster.yaml` enabling most of the previously disabled addons.  See here for a sample:
 [cluster.yaml-final](https://raw.githubusercontent.com/dmennell/konvoyToolbox/master/install/konvoy-onPrem-openEbs/cluster.yaml-final)
 
-Deploy the Konvoy addons
+**Deploy the Konvoy addons**
 ```
 konvoy deploy addons -y
 ```
 
-this will deploy the addons taking advantage Open EBS as the storage provider.  If interested, you can follow the progress of the PVC's, Pods, and Services as they are deployed and become healthy.
+this will deploy the addons taking advantage Open EBS as the storage provider.  If interested, you can follow the progress of the PVC's, Pods, and Services as they are deployed and become healthy through either Kubectl or the Kubernetes Dashboard
 
 
 ## Deploy Jenkins using Persistent Volumes from CSTOR
