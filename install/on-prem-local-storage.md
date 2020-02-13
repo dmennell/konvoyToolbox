@@ -50,11 +50,18 @@ Run the following on all Kubelet nodes in your cluster.
 
 This step assumes that the 3 additional drives are un-initialized, and unformatted.  It also assumes that the drives are available at /dev/sdb, /dev/sdc, and /dev/sdd.  For a successful deployment, each drive MUST be 55GB or greater in size as Prometheus tries to grab 50 GB of space.  You will first need to ssh into each worker node to accomplish the following.  I found iTerm's broadcast function to be very useful to accomplish this:
 
-#### Create the File System on each drive
+#### Create the File System on each drive (for CentOS)
 ```
 sudo mkfs.ext4 -F /dev/sdb
 sudo mkfs.ext4 -F /dev/sdc
 sudo mkfs.ext4 -F /dev/sdd
+```
+
+#### Create the File System on each drive (for Ubuntu - the default device names are different)
+```
+sudo mkfs.ext4 -F /dev/xvdb
+sudo mkfs.ext4 -F /dev/xvdc
+sudo mkfs.ext4 -F /dev/xvdd
 ```
 
 #### Create the /mnt/disks directory
@@ -62,7 +69,7 @@ sudo mkfs.ext4 -F /dev/sdd
 sudo mkdir /mnt/disks
 ```
 
-#### Mount Drives & Modify "fstab" (one at a time).  
+#### Mount Drives & Modify "fstab" (one at a time - CentOS Version).  
 Do this fo each drive /dev/sdb, /dev/sdc, /dev/sdd.  First you will need to ssh into the nodes with the appropriate key
 ```
 #Mount /dev/sdb
@@ -82,6 +89,28 @@ DISK_UUID=$(sudo blkid -s UUID -o value /dev/sdd)
 sudo mkdir /mnt/disks/$DISK_UUID
 sudo mount -t ext4 /dev/sdd /mnt/disks/$DISK_UUID
 echo UUID=`sudo blkid -s UUID -o value /dev/sdd` /mnt/disks/$DISK_UUID ext4 defaults 0 2 | sudo tee -a /etc/fstab
+```
+
+#### Mount Drives & Modify "fstab" (one at a time - Ubuntu Version).  
+Do this fo each drive /dev/sdb, /dev/sdc, /dev/sdd.  First you will need to ssh into the nodes with the appropriate key
+```
+#Mount /dev/xvdb
+DISK_UUID=$(sudo blkid -s UUID -o value /dev/xvdb)
+sudo mkdir /mnt/disks/$DISK_UUID
+sudo mount -t ext4 /dev/xvdb /mnt/disks/$DISK_UUID
+echo UUID=`sudo blkid -s UUID -o value /dev/xvdb` /mnt/disks/$DISK_UUID ext4 defaults 0 2 | sudo tee -a /etc/fstab
+sleep 2
+#Mount /dev/xvdc
+DISK_UUID=$(sudo blkid -s UUID -o value /dev/xvdc)
+sudo mkdir /mnt/disks/$DISK_UUID
+sudo mount -t ext4 /dev/xvdc /mnt/disks/$DISK_UUID
+echo UUID=`sudo blkid -s UUID -o value /dev/xvdc` /mnt/disks/$DISK_UUID ext4 defaults 0 2 | sudo tee -a /etc/fstab
+sleep 2
+#Mount /dev/xvdd
+DISK_UUID=$(sudo blkid -s UUID -o value /dev/xvdd)
+sudo mkdir /mnt/disks/$DISK_UUID
+sudo mount -t ext4 /dev/xvdd /mnt/disks/$DISK_UUID
+echo UUID=`sudo blkid -s UUID -o value /dev/xvdd` /mnt/disks/$DISK_UUID ext4 defaults 0 2 | sudo tee -a /etc/fstab
 ```
 
 ### Get The Bits
@@ -129,6 +158,13 @@ Specific fields you will need to modify are below.  Please see the Konvoy docume
 * metallb addresses:
   * this is the range of LAN addresses metallb will hand out for services (minIpAddress-maxIpAddress) 
   * Make sure they are not handed out by your DHCP Server, and that they are not already in use.
+* default containerd version for some reason does not work
+  * need to update the version to 1.2.6-3 such that the yaml stanza looks like below:
+  ```  
+  containerd:
+    version: 1.2.6-3
+  ```
+
 
 ## Build the Kluster
 Now we are ready to run the preflight checks and build the cluster.
