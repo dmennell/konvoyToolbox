@@ -1,13 +1,10 @@
 
 PreWork
 
-You will need kubectl contexts for both the kommander and cluster 2b managed available
-(kubectl config get-contexts)
-
-Create the Workspace and Namespace in the Kommander UI.  Do not create the Namespace through kubectl, and set the local namespace variable
-
+You will need kubectl contexts for both the kommander and cluster 2b managed available.  You will need to use the following commands
+`kubectl config get-contexts` and `kubectl config set-context`
+Create the Workspace and Namespace in the Kommander UI.  Do not create the Namespace through kubectl.
 Create directories for each cluster to be managed via Kubetunnel, and use these as the working directories whenever creating your gateways and tunnels
-
 
 
 **Use kubectl context for KOMMANDER CLUSTER 
@@ -32,13 +29,13 @@ kubectl get namespace ${namespace}
 
 ## CREATE A TUNNEL GATEWAY
 
-Create environment variables for ca_cedrt secret and GTunnel Gateway...
+Create environment variables for ca_cert secret and Tunnel Gateway...
 ```
 cacert_secret=kubetunnel-ca
 gateway=<gateway-name>
 ```
 
-...Create Tunnel Gateway file...
+Create Tunnel Gateway file
 ```
 cat > gateway.yaml <<EOF
 apiVersion: v1
@@ -69,13 +66,15 @@ spec:
 EOF
 ```
 
-...apply to the Kommander cluster...
+apply to the Kommander cluster
 ```
 kubectl apply -f gateway.yaml
 ```
 
-...and verify that it exists
+and verify that it exists
+```
 kubectl get tunnelgateway -n ${namespace} ${gateway}
+```
 
 
 ## CREATE TUNNEL CONNECTOR
@@ -149,7 +148,7 @@ do
 done
 ```
 
-* Add the cluster to Kommander 
+## Add the cluster to Kommander 
 
 create environment variables...
 ```
@@ -157,7 +156,7 @@ managed=<cluster-display-name>
 display_name=${managed}
 ```
 
-...create the kommander YAML File...
+create the kommander YAML File
 ```
 cat > kommander.yaml <<EOF
 apiVersion: kommander.mesosphere.io/v1beta1
@@ -173,12 +172,12 @@ spec:
 EOF
 ```
 
-...apply the file to the kommander cluster...
+apply the file to the kommander cluster
 ```
 kubectl apply -f kommander.yaml
 ```
 
-...and wait for the managed cluster to join the Kommander cluster
+and wait for the managed cluster to join the Kommander cluster
 ```
 while [ "$(kubectl get kommandercluster -n ${namespace} ${managed} -o jsonpath='{.status.phase}')" != "Joined" ]
 do
@@ -194,6 +193,7 @@ kubectl wait --for=condition=ready --timeout=60s kubefedcluster -n kommander ${k
 kubectl get kubefedcluster -n kommander ${kubefed}
 ```
 
+Check the Kommander UI.
 
 
 
