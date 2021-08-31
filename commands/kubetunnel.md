@@ -9,10 +9,9 @@ Create the Workspace and Namespace in the Kommander UI.  Do not create the Names
 Create directories for each cluster to be managed via Kubetunnel, and use these as the working directories whenever creating your gateways and tunnels
 
 
-==================================================
-Use kubectl context for KOMMANDER CLUSTER 
-(kubectl config use-context <kommander-cluster-context>)
-==================================================
+
+**Use kubectl context for KOMMANDER CLUSTER 
+`kubectl config use-context <kommander-cluster-context>`
 
 Obtain the hostname and CA certificate for the Kommander cluster:
 ```
@@ -26,12 +25,12 @@ Set the namespace environment variable
 namespace=<kommander-workspace-namespace>
 ```
 
-...and verify it is the same as the Kommander workspace namespace
+verify it is the same as the Kommander workspace namespace
 ```
 kubectl get namespace ${namespace}
 ```
 
-### CREATE A TUNNEL GATEWAY
+## CREATE A TUNNEL GATEWAY
 
 Create environment variables for ca_cedrt secret and GTunnel Gateway...
 ```
@@ -79,7 +78,7 @@ kubectl apply -f gateway.yaml
 kubectl get tunnelgateway -n ${namespace} ${gateway}
 
 
-### CREATE TUNNEL CONNECTOR
+## CREATE TUNNEL CONNECTOR
 
 Set tunnel connector environment variable
 ```
@@ -125,9 +124,8 @@ done
 kubectl get secret -n ${namespace} ${manifest} -o jsonpath='{.data.manifests\.yaml}' | base64 -d > manifest.yaml
 ```
 
-==================================================
-Use kubectl context for CLUSTER 2B MANAGED
-==================================================
+**Use kubectl context for CLUSTER 2B MANAGED 
+`kubectl config use-context <cluster-2b-managed>`
 
 apply the manifest file
 ```
@@ -139,10 +137,9 @@ Watch kubetunnel pods and wait for job to complete
 watch kubectl get pods -n kubetunnel
 ```
 
-==================================================
-Use kubectl context for KOMMANDER CLUSTER
-==================================================
 
+**Use kubectl context for KOMMANDER CLUSTER 
+`kubectl config use-context <kommander-cluster-context>`
 
 Wait for the tunnel to be connected by the tunnel agent
 ```
